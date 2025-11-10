@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { api } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import ServerSelector from '../components/ServerSelector'
 
 export default function Login(){
@@ -17,9 +18,13 @@ export default function Login(){
     try{
       const data = await api.post('/login',{email,password})
       console.log('✅ [Login] Resposta recebida:', data)
-      if(data && data.token){
+      
+      // O backend retorna: { success: true, message: '...', data: { token: '...' } }
+      const token = data.token || data.data?.token || data.data?.data?.token
+      
+      if(token){
         console.log('🎟️ [Login] Token recebido, fazendo signIn...')
-        signIn(data.token)
+        signIn(token)
       } else {
         console.warn('⚠️ [Login] Resposta sem token:', data)
         toast.error('Resposta inválida do servidor (sem token)')
