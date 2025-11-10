@@ -108,9 +108,12 @@ export default function Dashboard(){
     try{
       const data = await api.get('/workouts')
       console.log('📋 Treinos carregados:', data)
-      setWorkouts(data || [])
+      // A API pode retornar: [array] ou { workouts: [array] } ou { data: [array] }
+      const workoutsArray = Array.isArray(data) ? data : (data?.workouts || data?.data || [])
+      setWorkouts(workoutsArray)
     }catch(err){
       console.error(err)
+      setWorkouts([])
     }finally{setLoading(false)}
   }
 
