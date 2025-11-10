@@ -1,0 +1,14 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "env": {
+    "VITE_API_LOCAL_NAME": "Local Codespace",
+    "VITE_API_LOCAL_URL": "https://lifeless-spooky-gravestone-5gxpgr5vv95cvxv4-3001.app.github.dev",
+    "VITE_API_PROD1_NAME": "Backend Production",
+    "VITE_API_PROD1_URL": "https://backend.daviblumetti.tech",
+    "VITE_API_PROD2_NAME": "PostgreSQL Backend",
+    "VITE_API_PROD2_URL": "https://postgree.daviblumetti.tech",
+    "VITE_DEFAULT_SERVER": "prod1"
+  }
+}

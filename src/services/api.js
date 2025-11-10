@@ -57,27 +57,60 @@ async function requestToServer(serverUrl, path, options = {}){
   if (token) headers['Authorization'] = `Bearer ${token}`
 
   const url = serverUrl.replace(/\/$/, '') + path
-  const res = await fetch(url, {...options, headers})
+  
+  console.log('🌐 [API] Fazendo requisição:', {
+    url,
+    method: options.method || 'GET',
+    hasToken: !!token,
+    body: options.body
+  })
 
-  if (res.status === 401) {
-    toast.error('Não autorizado. Faça login novamente.')
-    localStorage.removeItem('token')
-    try{ window.location.href = '/login' }catch(e){}
-    throw new Error('Unauthorized')
+  try {
+    const res = await fetch(url, {...options, headers})
+    
+    console.log('📡 [API] Resposta recebida:', {
+      status: res.status,
+      statusText: res.statusText,
+      ok: res.ok
+    })
+
+    if (res.status === 401) {
+      toast.error('Não autorizado. Faça login novamente.')
+      localStorage.removeItem('token')
+      try{ window.location.href = '/login' }catch(e){}
+      throw new Error('Unauthorized')
+    }
+
+    const text = await res.text()
+    console.log('📄 [API] Corpo da resposta:', text)
+    
+    let data = null
+    try { data = text ? JSON.parse(text) : null } catch(e){ 
+      console.warn('⚠️ [API] Resposta não é JSON válido:', e)
+      data = text 
+    }
+
+    if (!res.ok) {
+      const msg = data && data.message ? data.message : `Erro ${res.status}`
+      toast.error(msg)
+      const err = new Error(msg)
+      err.status = res.status
+      err.data = data
+      throw err
+    }
+    
+    console.log('✅ [API] Sucesso:', data)
+    return data
+  } catch(error) {
+    console.error('❌ [API] Erro na requisição:', error)
+    
+    // Se for erro de rede (fetch falhou)
+    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+      toast.error(`Erro de conexão com ${serverUrl}. Verifique se a API está rodando.`)
+    }
+    
+    throw error
   }
-
-  const text = await res.text()
-  let data = null
-  try { data = text ? JSON.parse(text) : null } catch(e){ data = text }
-
-  if (!res.ok) {
-    const msg = data && data.message ? data.message : `Erro ${res.status}`
-    const err = new Error(msg)
-    err.status = res.status
-    err.data = data
-    throw err
-  }
-  return data
 }
 
 // request padrão: para o servidor ativo
